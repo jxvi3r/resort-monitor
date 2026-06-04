@@ -2,7 +2,7 @@ name: Resort Monitor
 
 on:
   schedule:
-  - cron: "*/5 * * * *"
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -12,32 +12,30 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
 
-
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - uses: actions/setup-python@v5
-      with:
-       python-version: "3.11"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Install dependencies
-      run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-    - name: Run monitor
-      env:
-       X_API_KEY: ${{ secrets.X_API_KEY }}
-       X_AUTH_TOKEN: ${{ secrets.X_AUTH_TOKEN }}
-       BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-       CHAT_ID: ${{ secrets.CHAT_ID }}
-      run: python resort_monitor.py
+      - name: Run monitor
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_AUTH_TOKEN: ${{ secrets.X_AUTH_TOKEN }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python resort_monitor.py
 
-    - name: Commit state file
-      run: |
-        git config user.name github-actions
-        git config user.email github-actions@github.com
+      - name: Commit state file
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
 
-        git add known_resorts.json
+          git add known_resorts.json
 
-        git diff --staged --quiet || git commit -m "Update known resorts"
-        git push
-
+          git diff --staged --quiet || git commit -m "Update known resorts"
+          git push
