@@ -64,14 +64,13 @@ def save_known(data):
     with open(STATE_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f)
 
-
-known = load_known()
-current = get_open_resorts()
+try:
+    current = get_open_resorts()
+except Exception as e:
+    print("API no disponible:", e)
+    exit(0)
 
 known_names = {r["name"] for r in known}
-current_names = {r["name"] for r in current}
-
-new_resorts = current_names - known_names
 
 for resort in current:
     if resort["name"] in new_resorts:
