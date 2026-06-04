@@ -59,6 +59,13 @@ def get_open_resorts():
                 "interviews_available": employer.get("interviews_available", False)
             })
 
+        unique_resorts = {}
+
+    for resort in resorts:
+        unique_resorts[resort["name"]] = resort
+
+    return list(unique_resorts.values())
+
     return resorts
 
 
