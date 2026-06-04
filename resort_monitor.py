@@ -64,6 +64,8 @@ def save_known(data):
     with open(STATE_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f)
 
+known = load_known()
+
 try:
     current = get_open_resorts()
 except Exception as e:
@@ -71,6 +73,7 @@ except Exception as e:
     exit(0)
 
 known_names = {r["name"] for r in known}
+current_names = {r["name"] for r in current}
 
 for resort in current:
     if resort["name"] in new_resorts:
