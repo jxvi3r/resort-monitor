@@ -43,11 +43,18 @@ def get_open_resorts():
     resorts = []
 
     for employer in data["employers"]:
-        if employer.get("interviews_available"):
-            resorts.append({
-                "name": employer["name"],
-                "location": employer["location"]
-            })
+
+        roles = []
+
+        for skill in employer.get("skills", []):
+            roles.append(skill["name"])
+
+        resorts.append({
+            "name": employer["name"],
+            "location": employer["location"],
+            "roles": roles,
+            "interviews_available": employer.get("interviews_available", False)
+        })
 
     return resorts
 
@@ -72,14 +79,37 @@ except Exception as e:
     print("API no disponible:", e)
     exit(0)
 
-known_names = {r["name"] for r in known}
-current_names = {r["name"] for r in current}
-
 for resort in current:
-    if resort["name"] in new_resorts:
+
+    previous = next(
+        (r for r in known if r["name"] == resort["name"]),
+        None
+    )
+
+    if previous is None:
+        continue
+
+    old_roles = set(previous.get("roles", []))
+    new_roles = set(resort.get("roles", []))
+
+    added_roles = new_roles - old_roles
+
+    if added_roles:
 
         msg = (
-            "🚨 NUEVA ENTREVISTA DISPONIBLE\n\n"
+            f"🆕 NUEVO PUESTO EN {resort['name']}\n\n"
+            + "\n".join(f"• {role}" for role in added_roles)
+        )
+
+        send_telegram(msg)
+
+    if (
+        not previous.get("interviews_available", False)
+        and resort.get("interviews_available", False)
+    ):
+
+        msg = (
+            "🚨 ENTREVISTA ABIERTA\n\n"
             f"🏨 {resort['name']}\n"
             f"📍 {resort['location']}"
         )
