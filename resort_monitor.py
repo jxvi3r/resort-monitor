@@ -30,31 +30,34 @@ def send_telegram(message):
 
 
 def get_open_resorts():
-    r = requests.get(
-        API_URL,
-        headers=HEADERS,
-        timeout=30
-    )
-
-    r.raise_for_status()
-
-    data = r.json()
 
     resorts = []
 
-    for employer in data["employers"]:
+    for page in [1, 2]:
 
-        roles = []
+        r = requests.get(
+            f"https://my.smallerearth.com/api/v1/participants/application_containers/1110115/employers?page={page}",
+            headers=HEADERS,
+            timeout=30
+        )
 
-        for skill in employer.get("skills", []):
-            roles.append(skill["name"])
+        r.raise_for_status()
 
-        resorts.append({
-            "name": employer["name"],
-            "location": employer["location"],
-            "roles": roles,
-            "interviews_available": employer.get("interviews_available", False)
-        })
+        data = r.json()
+
+        for employer in data["employers"]:
+
+            roles = []
+
+            for skill in employer.get("skills", []):
+                roles.append(skill["name"])
+
+            resorts.append({
+                "name": employer["name"],
+                "location": employer["location"],
+                "roles": roles,
+                "interviews_available": employer.get("interviews_available", False)
+            })
 
     return resorts
 
