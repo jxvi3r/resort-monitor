@@ -97,7 +97,20 @@ for resort in current:
     )
 
     if previous is None:
-        continue
+
+    msg = (
+        "🆕 NUEVO RESORT DISPONIBLE\n\n"
+        f"🏨 {resort['name']}\n"
+        f"📍 {resort['location']}"
+    )
+
+    if resort["roles"]:
+        msg += "\n\nPuestos:\n"
+        msg += "\n".join(f"• {role}" for role in resort["roles"])
+
+    send_telegram(msg)
+
+    continue
 
     old_roles = set(previous.get("roles", []))
     new_roles = set(resort.get("roles", []))
