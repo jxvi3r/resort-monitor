@@ -96,24 +96,23 @@ for resort in current:
         None
     )
 
-    if previous is None:
+if previous is None:
 
-    msg = (
-        "🆕 NUEVO RESORT DISPONIBLE\n\n"
-        f"🏨 {resort['name']}\n"
-        f"📍 {resort['location']}"
-    )
+        msg = (
+            "🆕 NUEVO RESORT DISPONIBLE\n\n"
+            f"🏨 {resort['name']}\n"
+            f"📍 {resort['location']}"
+        )
 
     if resort["roles"]:
-        msg += "\n\nPuestos:\n"
-        msg += "\n".join(f"• {role}" for role in resort["roles"])
+            msg += "\n\nPuestos:\n"
+            msg += "\n".join(f"• {role}" for role in resort["roles"])
 
-    send_telegram(msg)
+        send_telegram(msg)
+        continue
 
-    continue
-
-    old_roles = set(previous.get("roles", []))
-    new_roles = set(resort.get("roles", []))
+old_roles = set(previous.get("roles", []))
+new_roles = set(resort.get("roles", []))
 
     added_roles = new_roles - old_roles
 
