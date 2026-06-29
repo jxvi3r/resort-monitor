@@ -30,41 +30,31 @@ def send_telegram(message):
 
 
 def get_open_resorts():
+    r = requests.get(
+        API_URL,
+        headers=HEADERS,
+        timeout=30
+    )
+
+    r.raise_for_status()
+
+    data = r.json()
 
     resorts = []
 
-    for page in [1, 2]:
+    for employer in data["employers"]:
 
-        r = requests.get(
-            f"https://my.smallerearth.com/api/v1/participants/application_containers/1110115/employers?page={page}",
-            headers=HEADERS,
-            timeout=30
-        )
+        roles = []
 
-        r.raise_for_status()
+        for skill in employer.get("skills", []):
+            roles.append(skill["name"])
 
-        data = r.json()
-
-        for employer in data["employers"]:
-
-            roles = []
-
-            for skill in employer.get("skills", []):
-                roles.append(skill["name"])
-
-            resorts.append({
-                "name": employer["name"],
-                "location": employer["location"],
-                "roles": roles,
-                "interviews_available": employer.get("interviews_available", False)
-            })
-
-        unique_resorts = {}
-
-    for resort in resorts:
-        unique_resorts[resort["name"]] = resort
-
-    return list(unique_resorts.values())
+        resorts.append({
+            "name": employer["name"],
+            "location": employer["location"],
+            "roles": roles,
+            "interviews_available": employer.get("interviews_available", False)
+        })
 
     return resorts
 
@@ -81,6 +71,7 @@ def save_known(data):
     with open(STATE_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f)
 
+
 known = load_known()
 
 try:
@@ -96,18 +87,13 @@ for resort in current:
         None
     )
 
-previous = next(
-    (r for r in known if r["name"] == resort["name"]),
-    None
-)
+    if previous is None:
+        continue
 
-if previous is None:
-    continue
+    old_roles = set(previous.get("roles", []))
+    new_roles = set(resort.get("roles", []))
 
-old_roles = set(previous.get("roles", []))
-new_roles = set(resort.get("roles", []))
-
-added_roles = new_roles - old_roles
+    added_roles = new_roles - old_roles
 
     if added_roles:
 
